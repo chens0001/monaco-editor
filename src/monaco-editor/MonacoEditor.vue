@@ -13,8 +13,6 @@ const getHints = (model) => {
   return (global[id] && global[id].hints) || [];
 };
 
-        
-
 monaco.languages.registerCompletionItemProvider(
   "javascript", 
   createJavascriptCompleter(getHints),
@@ -61,6 +59,16 @@ export default {
       if (this.value !== this.editorInstance.getValue()) {
         this.editorInstance.setValue(this.value);
       }
+    },
+    hints: {
+      handler(newval){
+        monaco.languages.registerCompletionItemProvider(
+          "javascript", 
+          createJavascriptCompleter(getHints, newval),
+        );
+        registerLanguage(monaco);
+      },
+      immediate: true,
     },
   },
   mounted() {

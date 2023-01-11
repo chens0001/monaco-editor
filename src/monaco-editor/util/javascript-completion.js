@@ -12,7 +12,7 @@ const hints = [
   // 'watch',
   // 'updated'
 ];
-function createCompleter(getExtraHints) {
+function createCompleter(getExtraHints, restHints) {
     const createSuggestions = function (model, textUntilPosition) {
         let text = model.getValue();
         // eslint-disable-next-line
@@ -22,7 +22,7 @@ function createCompleter(getExtraHints) {
         let len = activeStr.length;
         let rexp = new RegExp("([^\\w]|^)" + activeStr + "\\w*", "gim");
         let match = text.match(rexp);
-        let mergeHints = Array.from(new Set([...getExtraHints(model), ...hints]))
+        let mergeHints = Array.from(new Set([...restHints, ...hints, ...getExtraHints(model)]))
             .sort()
             .filter(ele => {
                 let rexp = new RegExp(ele.substr(0, len), "gim");
