@@ -4,6 +4,7 @@
 
 <script>
 // import * as monaco from "monaco-editor";
+// 修改引入文件
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.main.js';
 import createJavascriptCompleter from "./util/javascript-completion";
 import registerLanguage from "./util/log-language";
@@ -77,7 +78,8 @@ export default {
     global[this.editorInstance._id] = this;
     window.addEventListener("resize", this.layout);
     console.log(this.editorInstance,'monaco-editor---------------------')
-    this.setCode();
+    // 插入代码
+    // this.setCode();
   },    
   destroyed() {
     this.editorInstance.dispose();
@@ -129,14 +131,9 @@ export default {
       let options = Object.assign({}, this.defaultOptions, this.options, props);
       return options;
     },
-    handleClick(e) {
-      console.log(e, 'click');
-    },
     onValueChange() {
       this.$emit("input", this.editorInstance.getValue());
       this.$emit("change", this.editorInstance.getValue());
-
-
     },
     initEditor() {
       this.MonacoEnvironment = {
@@ -147,7 +144,8 @@ export default {
 
       this.editorInstance = monaco.editor.create(this.$refs.editor, {
         ...this.getOptions(),
-        readOnly: true
+        // 设置无法编辑
+        readOnly: false
       });
 
       console.log(this.editorInstance, 'editor---------------------');
@@ -164,8 +162,10 @@ export default {
           this.$emit("save", this.editorInstance.getValue());
         }
       );
+      // 点击事件
       this.editorInstance.onKeyDown((e) => {
         console.log(e,' keydown');
+        // 可以做一些事情
         this.$emit("clickEditor");
       })
     },
