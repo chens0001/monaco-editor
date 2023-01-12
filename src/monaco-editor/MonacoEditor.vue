@@ -3,7 +3,8 @@
 </template>
 
 <script>
-import * as monaco from "monaco-editor";
+// import * as monaco from "monaco-editor";
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.main.js';
 import createJavascriptCompleter from "./util/javascript-completion";
 import registerLanguage from "./util/log-language";
 const global = {};
@@ -14,8 +15,8 @@ const getHints = (model) => {
 };
 
 monaco.languages.registerCompletionItemProvider(
-  "javascript", 
-  createJavascriptCompleter(getHints),
+  "javascript",
+  createJavascriptCompleter(getHints)
 );
 registerLanguage(monaco);
 /**
@@ -60,22 +61,24 @@ export default {
         this.editorInstance.setValue(this.value);
       }
     },
-    hints: {
-      handler(newval){
-        monaco.languages.registerCompletionItemProvider(
-          "javascript", 
-          createJavascriptCompleter(getHints, newval),
-        );
-        registerLanguage(monaco);
-      },
-      immediate: true,
-    },
+    // hints: {
+    //   handler(newval) {
+    //     monaco.languages.registerCompletionItemProvider(
+    //       "javascript",
+    //       createJavascriptCompleter(getHints, newval)
+    //     );
+    //     registerLanguage(monaco);
+    //   },
+    //   immediate: true,
+    // },
   },
   mounted() {
     this.initEditor();
     global[this.editorInstance._id] = this;
     window.addEventListener("resize", this.layout);
-  },
+    console.log(this.editorInstance,'monaco-editor---------------------')
+    this.setCode();
+  },    
   destroyed() {
     this.editorInstance.dispose();
     global[this.editorInstance._id] = null;
@@ -93,15 +96,47 @@ export default {
       this.editorInstance.trigger("anyString", "redo");
       this.onValueChange();
     },
+    setCode() {
+      // manacoEditor 为 实例对象
+      const insertText = `-------<div>hello world</div>------
+      
+      
+      
+      
+      
+      
+      
+      
+
+
+      `;
+      // 2 插入
+      this.editorInstance.executeEdits("insert-code", [
+        {
+          range: {
+            startLineNumber: 10,
+            startColumn: 5 ,
+            endLineNumber: 10,
+            endColumn: 10
+          },
+          text: insertText,
+        },
+      ]);
+    },
     getOptions() {
       let props = { value: this.value };
       this.language !== undefined && (props.language = this.language);
       let options = Object.assign({}, this.defaultOptions, this.options, props);
       return options;
     },
+    handleClick(e) {
+      console.log(e, 'click');
+    },
     onValueChange() {
       this.$emit("input", this.editorInstance.getValue());
       this.$emit("change", this.editorInstance.getValue());
+
+
     },
     initEditor() {
       this.MonacoEnvironment = {
@@ -110,10 +145,13 @@ export default {
         },
       };
 
-      this.editorInstance = monaco.editor.create(
-        this.$refs.editor,
-        this.getOptions()
-      );
+      this.editorInstance = monaco.editor.create(this.$refs.editor, {
+        ...this.getOptions(),
+        readOnly: true
+      });
+
+      console.log(this.editorInstance, 'editor---------------------');
+
       this.editorInstance.onContextMenu((e) => {
         this.$emit("contextmenu", e);
       });
@@ -126,6 +164,10 @@ export default {
           this.$emit("save", this.editorInstance.getValue());
         }
       );
+      this.editorInstance.onKeyDown((e) => {
+        console.log(e,' keydown');
+        this.$emit("clickEditor");
+      })
     },
   },
 };
@@ -133,6 +175,6 @@ export default {
 
 <style scoped>
 .main /deep/ .view-lines * {
-  font-family: Consolas, "Courier New", monospace ;
+  font-family: Consolas, "Courier New", monospace;
 }
 </style>
